@@ -29,7 +29,6 @@ def matricePNumpy(n, p, a, b):
     return M
 
 
-
 def matrice(n, a, b):
     return matricePRandom(n, 0.5, a, b)
 
@@ -56,7 +55,8 @@ def countPoids0(G):
                 count += 1
     return count / n ** 2
 
-def moyennePoidsGraphesNumpy(taille,p):
+
+def moyennePoidsGraphesNumpy(taille, p):
     a = 2
     b = 10
     moyenne = 0
@@ -65,7 +65,8 @@ def moyennePoidsGraphesNumpy(taille,p):
         moyenne += countPoids0(G)
     return moyenne / 100
 
-def moyennePoidsGraphesRandom(taille,p):
+
+def moyennePoidsGraphesRandom(taille, p):
     a = 2
     b = 10
     moyenne = 0
@@ -91,23 +92,49 @@ def affichageMatrice(mat):
 
 
 # parcours d'un graphe selon dijkstra
-def dijkstra(G, s):
-    n = len(G)
-    d = [float('inf') for i in range(n)]
-    d[s] = 0
-    S = []
-    u = 0
-    while len(S) < n:
-        mini = float('inf')
-        for i in range(n):
-            if i not in S and d[i] < mini:
-                mini = d[i]
-                u = i
-        S.append(u)
-        for v in range(n):
-            if G[u][v] != float('inf') and d[v] > d[u] + G[u][v]:
-                d[v] = d[u] + G[u][v]
-    return d
+def Dijkstra(M, d):
+    # Initialisation des dictionnaires dist, pred et distR
+    dist = {i: float('inf') for i in range(len(M))}  # Dictionnaire pour stocker les distances les plus courtes
+    pred = {}  # Dictionnaire pour stocker les prédécesseurs
+    distR = {i: float('inf') for i in range(len(M))}  # Version restreinte des sommets restant à traiter
+    distR[d] = 0  # Distance de d à lui-même
+
+    # Tant qu'il reste des sommets à traiter dans distR
+    while distR:
+        # Trouver le sommet non encore traité avec la plus petite distance dans distR
+        u = min(distR, key=distR.get)
+        dist[u] = distR.pop(u)  # Mettre à jour la distance minimale pour ce sommet
+
+        # Parcourir les sommets voisins de u et mettre à jour les distances si nécessaire
+        for v in range(len(M)):
+            if M[u][v] != float('inf') and v in distR:  # Si v est un voisin de u et n'est pas encore traité
+                alt = dist[u] + M[u][v]  # Calculer la distance alternative jusqu'à v
+                if alt < distR[v]:  # Si l'alternative est plus courte
+                    distR[v] = alt  # Mettre à jour la distance de v
+                    pred[v] = u  # Mettre à jour le prédécesseur de v
+
+    # Initialisation du dictionnaire de résultats
+    result = {}
+
+    # Calculer les itinéraires à partir des prédécesseurs
+    for s in range(len(M)):
+        if s != d:
+            chemin = [s]
+            while chemin[-1] != d:
+                if pred.get(chemin[-1]) is None:
+                    # Le sommet n'est pas joignable à d par un chemin dans le graphe
+                    result[s] = "sommet non joignable à {} par un chemin dans le graphe G".format(d)
+                    break
+                chemin.append(pred[chemin[-1]])
+            if chemin[-1] == d:
+                result[s] = (dist[s], chemin[::-1])
+            elif s not in result:
+                # Le sommet n'est pas joignable à d par un chemin dans le graphe
+                result[s] = "sommet non joignable à {} par un chemin dans le graphe G".format(d)
+        elif s == d:
+            result[s] = 0
+
+    return result
 
 
 """
@@ -137,7 +164,6 @@ def BellmanFord(M, s):
                     d[j][1].append(i)
     for i in range(n):
         d[i][1].append(i)
-    d = listeSommetEnFlèche(d)
     # detection de cycle negatif
     for h in range(n):
         for i in range(n):
@@ -149,93 +175,156 @@ def BellmanFord(M, s):
                 elif M[i][j] != float('inf') and not isinstance(d[i], str) and not isinstance(d[j], str):
                     # print(f"{j} : {d[j][0]} / {d[i][0] + M[i][j]}")
                     if d[j][0] > d[i][0] + M[i][j] or d[j][0] < 0:
-                        d[j] = "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
+                        d[
+                            j] = "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
         # renvoie les chemins
     return d
 
 
-def parcoursLargeur(mat, s):
-    n = len(mat)
+def pp(mat, s):
+    n = len(mat)  # taille du tableau = nombre de sommets
+    couleur = {}  # On colorie tous les sommets en blanc et s en vert
+    for i in range(n):
+        couleur[i] = 0
+    couleur[s] = 1
+    pile = [s]  # on initialise la pile à s
+    Resultat = [s]  # on initialise la liste des résultats à s
+    while pile != []:  # tant que la pile n'est pas vide,
+        i = pile[-1]  # on prend le dernier sommet i de la pile
+        Succ_blanc = []  # on crée la liste de ses successeurs non déjà visités (blancs)
+        for j in range(n):
+            if (mat[i][j] == 1 and couleur[j] == 0):
+                Succ_blanc.append(j)
+        if Succ_blanc != []:  # s'il y en a,
+            v = Succ_blanc[0]  # on prend le premier (si on veut l'ordre alphabétique)
+            couleur[v] = 1  # on le colorie en vert,
+            pile.append(v)  # on l'empile
+            Resultat.append(v)  # on le met en liste rsultat
+        else:  # sinon:
+            pile.pop()  # on sort i de la pile
+
+    return (Resultat)
+
+
+def parcoursLargeur(M, s):
+    n = len(M)
     file = [s]
-    visites = []
-    fleche = []
-    visites.append(s)
+    couleur = [0] * n
+    sommets = []
+    couleur[s] = 1
     while file != []:
-        sommet = file.pop(0)
-        for i in range(n):
-            if mat[sommet][i] != float('inf') and i not in visites:
-                visites.append(i)
-                fleche.append((sommet, i))
-                file.append(i)
-    return fleche
+        i = file.pop(0)  # on prend le premier terme de la file
+        for j in range(n):
+            if M[i][j] == 1 and couleur[j] == 0:
+                couleur[j] = 1
+                sommets.append(i)
+                file.append(j)
+    return sommets
+
+
+def pl(M, s):
+    n = len(M)
+    couleur = [0] * n
+    couleur[s] = 1
+    file = [s]
+    sommets = []
+    while file != []:
+        i = file[0]  # on prend le premier terme de la file
+        for j in range(n):  # On enfile les successeurs de i encore blancs:
+            if (M[i][j] != float('inf') and couleur[j] == 0):
+                file.append(j)
+                couleur[j] = 1  # On les colorie en vert (sommets visités)
+                sommets.append(i)  # On les place dans la liste Resultat
+        file.pop(0)  # on défile i (on retire le premier élément)
+    return sommets
 
 
 def BellmanFordParcours(M, s):
-    n = len(M)
     # intialisation du tableau d
-    d = {i: [float('inf'), []] for i in range(n)}
+    d = {i: [float('inf'), []] for i in range(len(M))}
     # parcours en largeur de M depuis s
-    parcours = parcoursLargeur(M, s)
+    mat = graphPEnNonP(M)
+    parcours = parcoursLargeur(mat, s)
+    fleches = listeFlechesParcours(mat, parcours)
     # initialisation de d
     d[s][0] = 0
     modif = True
     # boucle principale
-    while modif:
+    n = 0
+    while modif and n < len(M) - 1:
         modif = False
         # on parcourt chaque flèche dans le parcours en largeur
-        for f in parcours:
-            i = f[0]
-            j = f[1]
-            if d[j][0] > d[i][0] + M[i][j]:
+        for i, j in fleches:
+            if d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
                 modif = True
                 d[j][0] = d[i][0] + M[i][j]
-                for x in d[i][1]:
-                    d[j][1].append(x)
-                d[j][1].append(i)
-    # on ajoute le sommet d'arrivée à chaque chemin
-    for i in range(n):
-        d[i][1].append(i)
-    #detection de cycle negatif
-    #d = listeSommetEnFlèche(d)#on passe les sommets en flèche
-    for r in range(n - 1):
-        for f in parcours:
-            i = f[0]
-            j = f[1]
-            if d[j][0] == float('inf'):
-                d[j] = "sommet non joignable depuis d par un chemin dans le graphe G"
-            elif d[i][0] == float('inf'):
-                d[i] = "sommet non joignable depuis d par un chemin dans le graphe G"
-            elif M[i][j] != float('inf') and not isinstance(d[i], str) and not isinstance(d[j], str):
-                # print(f"{j} : {d[j][0]} / {d[i][0] + M[i][j]}")
-                if d[j][0] > d[i][0] + M[i][j] or d[j][0] < 0:
-                    d[j] = "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
+                d[j][1] = i
+        n += 1
+    # detection de cycle negatif
+    for i, j in fleches:
+        if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
+            return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
     return d
 
 
-#on convertit une liste de sommet en flèche
-def listeSommetEnFlèche(d):
-    n = len(d)
-    # on parcourt chaque sommet
-    for i in range(n):
-        # on initialise la liste de flèche
-        line = []
-        #on parcourt chaque flèche
-        for x in range(len(d[i][1])):
-            #on va de sommet en sommet pour former une liste de flèche
-            line.append((d[i][1][x-1], d[i][1][x]))
-        #on remplace la liste de sommet par la liste de flèche
-        d[i][1] = line
-    return d
-
-def printParcours(parcours):
-    for i in range(len(parcours)):
-        print(f"Sommet : {i}")
-        print(f"Distance : {parcours[i][0]} , Chemin : {parcours[i][1]}")
-
-def TempsBF(n):
+def TempsBF(n, M):
     p = (1 / n)
-    M = matricePNumpy(n, p, 1, 2 ** 31)
     start = timeit.default_timer()
     BellmanFordParcours(M, 1)
     stop = timeit.default_timer()
     return (stop - start) * 1000
+
+
+def TempsDij(n, M):
+    p = (1 / n)
+    start = timeit.default_timer()
+    chemin = Dijkstra(M, 1)
+    stop = timeit.default_timer()
+    return (stop - start) * 1000
+
+
+def Temps(tab):
+    temps = [[], [], [], []]
+    for n in tab:
+        M = matricePNumpy(n, 1 / n, 1, 2 ** 31)
+        start = timeit.default_timer()
+        BellmanFordParcours(M, 0)
+        stop = timeit.default_timer()
+        temps[0].append((stop - start) * 1000)
+        start = timeit.default_timer()
+        Dijkstra(M, 0)
+        stop = timeit.default_timer()
+        temps[1].append((stop - start) * 1000)
+        matnonp = graphPEnNonP(M)
+        start = timeit.default_timer()
+        parcoursLargeur(matnonp, 0)
+        stop = timeit.default_timer()
+        temps[2].append((stop - start) * 1000)
+        start = timeit.default_timer()
+        pp(matnonp, 0)
+        stop = timeit.default_timer()
+        temps[3].append((stop - start) * 1000)
+    return temps
+
+
+def listeFlechesParcours(mat, parcours):
+    fleches = []
+    for s in parcours:
+        for i in range(len(mat)):
+            if mat[s][i] == 1:
+                fleches.append((s, i))
+    return fleches
+
+
+def graphPEnNonP(mat):
+    n = len(mat)
+    M = []
+    for i in range(n):
+        ligne = []
+        for j in range(n):
+            if mat[i][j] != float('inf'):
+                ligne.append(1)
+            else:
+                ligne.append(0)
+        M.append(ligne)
+    return M

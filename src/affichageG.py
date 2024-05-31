@@ -12,7 +12,7 @@ def toDiGraph(mat):
                 G.add_edge(i + 1, j + 1, weight=mat[i][j])
     return G
 
-
+nx.bfs_edges
 def affichage(mat):
     G = toDiGraph(mat)
     pos = nx.spring_layout(G)  # Positions des nœuds pour le dessin du graphe
@@ -28,14 +28,31 @@ def affichage(mat):
     plt.title("Graphe dirigé à partir d'une matrice d'adjacence avec pondération")
     plt.show()
 
+
 def afficheCourbe():
-    n_valeurs = range(2,200)
-    temps_BF = [g.TempsBF(n) for n in n_valeurs]
+    n_valeurs = range(2, 200)
+    temps = g.Temps(n_valeurs)
+    temps_BF = temps[0]
+    temps_dij = temps[1]
+    temps_parcoursL = temps[2]
+    temps_pp = temps[3]
     plt.figure(figsize=(10, 5))
+    plt.loglog(n_valeurs, temps_dij, label='Dijkstra')
     plt.loglog(n_valeurs, temps_BF, label='Bellman Ford')
+    plt.loglog(n_valeurs, temps_parcoursL, label='Parcours en largeur')
+    plt.loglog(n_valeurs, temps_pp, label='PP')
     plt.xlabel('Nombre de sommets n')
     plt.ylabel('Temps d\'exécution (ms)')
     plt.title('Comparaison du temps d\'exécution des algorithmes de plus courts chemins')
     plt.legend()
     plt.grid(True)
     plt.show()
+
+
+def printParcours(parcours):
+    if isinstance(parcours,str):
+        print(parcours)
+    else:
+        for i in range(len(parcours)):
+            print(f"Sommet : {i}")
+            print(f"Distance : {parcours[i][0]} , Prédecesseur : {parcours[i][1]}")
