@@ -148,6 +148,32 @@ def parcoursLargeur(mat, s):
     return visites
 
 
+def pp(M, s):
+    n = len(M)  # taille du tableau = nombre de sommets
+    couleur = {}  # On colorie tous les sommets en blanc et s en vert
+    for i in range(n):
+        couleur[i] = 'blanc'
+    couleur[s] = 'vert'
+    pile = [s]  # on initialise la pile à s
+    Resultat = [s]  # on initialise la liste des résultats à s
+
+    while pile != []:  # tant que la pile n'est pas vide,
+        i = pile[-1]  # on prend le dernier sommet i de la pile
+        Succ_blanc = []  # on crée la liste de ses successeurs non déjà visités (blancs)
+        for j in range(n):
+            if (M[i, j] == 1 and couleur[j] == 'blanc'):
+                Succ_blanc.append(j)
+        if Succ_blanc != []:  # s'il y en a,
+            v = Succ_blanc[0]  # on prend le premier (si on veut l'ordre alphabétique)
+            couleur[v] = 'vert'  # on le colorie en vert,
+            pile.append(v)  # on l'empile
+            Resultat.append(v)  # on le met en liste rsultat
+        else:  # sinon:
+            pile.pop()  # on sort i de la pile
+
+    return (Resultat)
+
+
 def BellmanFordParcours(M, s):
     n = len(M)
     d = {i: [float('inf'), []] for i in range(n)}
