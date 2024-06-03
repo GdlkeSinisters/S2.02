@@ -29,20 +29,22 @@ def affichage(mat):
     plt.show()
 
 
-def afficheCourbe():
-    n_valeurs = range(2, 1000)
+def afficheCourbeTemps():
+    n_valeurs = range(2, 500)
     temps = g.Temps(n_valeurs)
     temps_BFPL = temps[0]
     temps_dij = temps[1]
     temps_parcoursL = temps[2]
     temps_pp = temps[3]
     temps_BFPP = temps[4]
+    temps_BF = temps[5]
     plt.figure(figsize=(10, 5))
-    plt.loglog(n_valeurs, temps_dij, label='Dijkstra')
+    #plt.loglog(n_valeurs, temps_dij, label='Dijkstra')
     plt.loglog(n_valeurs, temps_BFPL, label='Bellman Ford Parcours Largeur')
     plt.loglog(n_valeurs, temps_BFPP, label='Bellman Ford Parcours Profondeur')
-    plt.loglog(n_valeurs, temps_parcoursL, label='Parcours en largeur')
-    plt.loglog(n_valeurs, temps_pp, label='PP')
+    #plt.loglog(n_valeurs, temps_parcoursL, label='Parcours en largeur')
+    #plt.loglog(n_valeurs, temps_pp, label='PP')
+    plt.loglog(n_valeurs, temps_BF, label='Bellman Ford')
     plt.xlabel('Nombre de sommets n')
     plt.ylabel('Temps d\'exécution (ms)')
     plt.title('Comparaison du temps d\'exécution des algorithmes de plus courts chemins')
@@ -53,6 +55,7 @@ def afficheCourbe():
     print(f"Somme des temps pour Dijkstra : {sum(temps_dij)}")
     print(f"Somme des temps pour Bellman Ford Parcours Largeur : {sum(temps_BFPL)}")
     print(f"Somme des temps pour Bellman Ford Parcours Profondeur : {sum(temps_BFPP)}")
+    print(f"Somme des temps pour Bellman Ford : {sum(temps_BF)}")
 
 
 def printParcours(parcours):
@@ -62,3 +65,24 @@ def printParcours(parcours):
         for i in range(len(parcours)):
             print(f"Sommet : {i}")
             print(f"Distance : {parcours[i][0]} , Prédecesseur : {parcours[i][1]}")
+
+def afficheCourbeTours(a,b):
+    n_valeurs = range(a, b)
+    tours = g.Tours(n_valeurs)
+    tours_BFPL = tours[0]
+    tours_BF = tours[1]
+    tours_BFPP = tours[2]
+    plt.figure(figsize=(10, 5))
+    plt.loglog(n_valeurs, tours_BFPL, label='Bellman Ford Parcours Largeur')
+    plt.loglog(n_valeurs, tours_BFPP, label='Bellman Ford Parcours Profondeur')
+    plt.loglog(n_valeurs, tours_BF, label='Bellman Ford')
+    plt.xlabel('Nombre de sommets n')
+    plt.ylabel('Temps d\'exécution (ms)')
+    plt.title('Comparaison du nombre de tours d\'exécution des algorithmes de plus courts chemins')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    # Calculez les sommes des temps pour chaque algorithme
+    print(f"Somme des tours pour Bellman Ford Parcours Largeur : {sum(tours_BFPL)}")
+    print(f"Somme des tours pour Bellman Ford Parcours Profondeur : {sum(tours_BFPP)}")
+    print(f"Somme des tours pour Bellman Ford : {sum(tours_BF)}")
