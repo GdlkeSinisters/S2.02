@@ -222,29 +222,14 @@ def parcoursLargeur(M, s):
     return sommets
 
 
-def pl(M, s):
-    n = len(M)
-    couleur = [0] * n
-    couleur[s] = 1
-    file = [s]
-    sommets = []
-    while file != []:
-        i = file[0]  # on prend le premier terme de la file
-        for j in range(n):  # On enfile les successeurs de i encore blancs:
-            if (M[i][j] != float('inf') and couleur[j] == 0):
-                file.append(j)
-                couleur[j] = 1  # On les colorie en vert (sommets visités)
-                sommets.append(i)  # On les place dans la liste Resultat
-        file.pop(0)  # on défile i (on retire le premier élément)
-    return sommets
-
-
-def BellmanFordParcours(M, s):
+def BellmanFordParcoursLargeur(M, s):
     # intialisation du tableau d
     d = {i: [float('inf'), []] for i in range(len(M))}
-    # parcours en largeur de M depuis s
+    # initialisation de la matrice d'adjacence du graphe non pondéré
     mat = graphPEnNonP(M)
+    # parcours en largeur de M depuis s
     parcours = parcoursLargeur(mat, s)
+    # liste des fleches du parcours en largeur
     fleches = listeFlechesParcours(mat, parcours)
     # initialisation de d
     d[s][0] = 0
@@ -266,11 +251,39 @@ def BellmanFordParcours(M, s):
             return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
     return d
 
+def BellmanFordParcoursProfondeur(M, s):
+    # intialisation du tableau d
+    d = {i: [float('inf'), []] for i in range(len(M))}
+    # initialisation de la matrice d'adjacence du graphe non pondéré
+    mat = graphPEnNonP(M)
+    # parcours en largeur de M depuis s
+    parcours = pp(mat, s)
+    # liste des fleches du parcours en largeur
+    fleches = listeFlechesParcours(mat, parcours)
+    # initialisation de d
+    d[s][0] = 0
+    modif = True
+    # boucle principale
+    n = 0
+    while modif and n < len(M) - 1:
+        modif = False
+        # on parcourt chaque flèche dans le parcours en largeur
+        for i, j in fleches:
+            if d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
+                modif = True
+                d[j][0] = d[i][0] + M[i][j]
+                d[j][1] = i
+        n += 1
+    # detection de cycle negatif
+    for i, j in fleches:
+        if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
+            return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
+    return d
 
 def TempsBF(n, M):
     p = (1 / n)
     start = timeit.default_timer()
-    BellmanFordParcours(M, 1)
+    BellmanFordParcoursLargeur(M, 1)
     stop = timeit.default_timer()
     return (stop - start) * 1000
 
@@ -284,11 +297,11 @@ def TempsDij(n, M):
 
 
 def Temps(tab):
-    temps = [[], [], [], []]
+    temps = [[], [], [], [],[]]
     for n in tab:
         M = matricePNumpy(n, 1 / n, 1, 2 ** 31)
         start = timeit.default_timer()
-        BellmanFordParcours(M, 0)
+        BellmanFordParcoursLargeur(M, 0)
         stop = timeit.default_timer()
         temps[0].append((stop - start) * 1000)
         start = timeit.default_timer()
@@ -304,6 +317,11 @@ def Temps(tab):
         pp(matnonp, 0)
         stop = timeit.default_timer()
         temps[3].append((stop - start) * 1000)
+        start = timeit.default_timer()
+        BellmanFordParcoursProfondeur(M, 0)
+        stop = timeit.default_timer()
+        temps[4].append((stop - start) * 1000)
+
     return temps
 
 
