@@ -9,7 +9,7 @@ def main():
     # print(f"Bellman-Ford : \n{g.BellmanFord(matrice, 0)}")
     print("Bellman-Ford en parcours :")
     # print(g.parcoursLargeur(matrice, 0))
-    ag.printParcours(g.BellmanFordParcours(matrice, 0))
+    ag.printParcours(g.BellmanFordParcoursLargeur(matrice, 0))
     # print(g.moyennePoidsGraphesNumpy(500, 0.6))
     # ag.affichage(matrice)
     ag.afficheCourbe()

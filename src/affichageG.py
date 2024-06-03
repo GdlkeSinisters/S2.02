@@ -30,15 +30,17 @@ def affichage(mat):
 
 
 def afficheCourbe():
-    n_valeurs = range(2, 200)
+    n_valeurs = range(2, 1000)
     temps = g.Temps(n_valeurs)
-    temps_BF = temps[0]
+    temps_BFPL = temps[0]
     temps_dij = temps[1]
     temps_parcoursL = temps[2]
     temps_pp = temps[3]
+    temps_BFPP = temps[4]
     plt.figure(figsize=(10, 5))
     plt.loglog(n_valeurs, temps_dij, label='Dijkstra')
-    plt.loglog(n_valeurs, temps_BF, label='Bellman Ford')
+    plt.loglog(n_valeurs, temps_BFPL, label='Bellman Ford Parcours Largeur')
+    plt.loglog(n_valeurs, temps_BFPP, label='Bellman Ford Parcours Profondeur')
     plt.loglog(n_valeurs, temps_parcoursL, label='Parcours en largeur')
     plt.loglog(n_valeurs, temps_pp, label='PP')
     plt.xlabel('Nombre de sommets n')
@@ -47,6 +49,10 @@ def afficheCourbe():
     plt.legend()
     plt.grid(True)
     plt.show()
+    # Calculez les sommes des temps pour chaque algorithme
+    print(f"Somme des temps pour Dijkstra : {sum(temps_dij)}")
+    print(f"Somme des temps pour Bellman Ford Parcours Largeur : {sum(temps_BFPL)}")
+    print(f"Somme des temps pour Bellman Ford Parcours Profondeur : {sum(temps_BFPP)}")
 
 
 def printParcours(parcours):
