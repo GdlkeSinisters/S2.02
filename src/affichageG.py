@@ -29,8 +29,8 @@ def affichage(mat):
     plt.show()
 
 
-def afficheCourbeTemps():
-    n_valeurs = range(2, 500)
+def afficheCourbeTemps(a, b):
+    n_valeurs = range(a, b)
     temps = g.Temps(n_valeurs)
     temps_BFPL = temps[0]
     temps_dij = temps[1]

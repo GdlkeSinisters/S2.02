@@ -171,7 +171,7 @@ def BellmanFord(M, s):
     # detection de cycle negatif
     for i in range(n):
         for j in range(n):
-            if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
+            if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]):
                 return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
         # renvoie les chemins
     return taille
@@ -243,7 +243,7 @@ def BellmanFordParcoursLargeur(M, s):
         taille += 1
     # detection de cycle negatif
     for i, j in fleches:
-        if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
+        if M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
             return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
     return d
 
@@ -272,7 +272,7 @@ def BellmanFordParcoursProfondeur(M, s):
         taille += 1
     # detection de cycle negatif
     for i, j in fleches:
-        if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
+        if M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
             return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
     return d
 
