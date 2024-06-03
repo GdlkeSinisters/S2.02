@@ -156,29 +156,25 @@ def BellmanFord(M, s):
     n = len(M)
     d = {i: [float('inf'), []] for i in range(n)}
     d[s][0] = 0
-    for r in range(n - 1):
-        for i in range(n):
-            for j in range(n):
-                if M[i][j] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
-                    d[j][0] = d[i][0] + M[i][j]
-                    d[j][1].append(i)
-    for i in range(n):
-        d[i][1].append(i)
+    mat = graphPEnNonP(M)
+    fleches = listeFlechesAleatoires(mat)
+    modif = True
+    taille = 0
+    while taille < len(M) - 1 and modif:
+        modif = False
+        for i, j in fleches:
+            if M[i][j] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
+                modif = True
+                d[j][0] = d[i][0] + M[i][j]
+                d[j][1] = i
+        taille += 1
     # detection de cycle negatif
-    for h in range(n):
-        for i in range(n):
-            for j in range(n):
-                if d[j][0] == float('inf'):
-                    d[j] = "sommet non joignable depuis d par un chemin dans le graphe G"
-                elif d[i][0] == float('inf'):
-                    d[i] = "sommet non joignable depuis d par un chemin dans le graphe G"
-                elif M[i][j] != float('inf') and not isinstance(d[i], str) and not isinstance(d[j], str):
-                    # print(f"{j} : {d[j][0]} / {d[i][0] + M[i][j]}")
-                    if d[j][0] > d[i][0] + M[i][j] or d[j][0] < 0:
-                        d[
-                            j] = "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
+    for i in range(n):
+        for j in range(n):
+            if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
+                return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
         # renvoie les chemins
-    return d
+    return taille
 
 
 def pp(mat, s):
@@ -235,8 +231,8 @@ def BellmanFordParcoursLargeur(M, s):
     d[s][0] = 0
     modif = True
     # boucle principale
-    n = 0
-    while modif and n < len(M) - 1:
+    taille = 0
+    while modif and taille < len(M) - 1:
         modif = False
         # on parcourt chaque flèche dans le parcours en largeur
         for i, j in fleches:
@@ -244,7 +240,7 @@ def BellmanFordParcoursLargeur(M, s):
                 modif = True
                 d[j][0] = d[i][0] + M[i][j]
                 d[j][1] = i
-        n += 1
+        taille += 1
     # detection de cycle negatif
     for i, j in fleches:
         if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
@@ -264,8 +260,8 @@ def BellmanFordParcoursProfondeur(M, s):
     d[s][0] = 0
     modif = True
     # boucle principale
-    n = 0
-    while modif and n < len(M) - 1:
+    taille = 0
+    while modif and taille < len(M) - 1:
         modif = False
         # on parcourt chaque flèche dans le parcours en largeur
         for i, j in fleches:
@@ -273,7 +269,7 @@ def BellmanFordParcoursProfondeur(M, s):
                 modif = True
                 d[j][0] = d[i][0] + M[i][j]
                 d[j][1] = i
-        n += 1
+        taille += 1
     # detection de cycle negatif
     for i, j in fleches:
         if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]) or d[j][0] < 0:
@@ -281,7 +277,6 @@ def BellmanFordParcoursProfondeur(M, s):
     return d
 
 def TempsBF(n, M):
-    p = (1 / n)
     start = timeit.default_timer()
     BellmanFordParcoursLargeur(M, 1)
     stop = timeit.default_timer()
@@ -289,15 +284,14 @@ def TempsBF(n, M):
 
 
 def TempsDij(n, M):
-    p = (1 / n)
     start = timeit.default_timer()
-    chemin = Dijkstra(M, 1)
+    Dijkstra(M, 1)
     stop = timeit.default_timer()
     return (stop - start) * 1000
 
 
 def Temps(tab):
-    temps = [[], [], [], [],[]]
+    temps = [[], [], [], [], [], []]
     for n in tab:
         M = matricePNumpy(n, 1 / n, 1, 2 ** 31)
         start = timeit.default_timer()
@@ -305,22 +299,26 @@ def Temps(tab):
         stop = timeit.default_timer()
         temps[0].append((stop - start) * 1000)
         start = timeit.default_timer()
-        Dijkstra(M, 0)
+        #Dijkstra(M, 0)
         stop = timeit.default_timer()
         temps[1].append((stop - start) * 1000)
         matnonp = graphPEnNonP(M)
         start = timeit.default_timer()
-        parcoursLargeur(matnonp, 0)
+        #parcoursLargeur(matnonp, 0)
         stop = timeit.default_timer()
         temps[2].append((stop - start) * 1000)
         start = timeit.default_timer()
-        pp(matnonp, 0)
+        #pp(matnonp, 0)
         stop = timeit.default_timer()
         temps[3].append((stop - start) * 1000)
         start = timeit.default_timer()
         BellmanFordParcoursProfondeur(M, 0)
         stop = timeit.default_timer()
         temps[4].append((stop - start) * 1000)
+        start = timeit.default_timer()
+        BellmanFord(M, 0)
+        stop = timeit.default_timer()
+        temps[5].append((stop - start) * 1000)
 
     return temps
 
@@ -346,3 +344,21 @@ def graphPEnNonP(mat):
                 ligne.append(0)
         M.append(ligne)
     return M
+
+def Tours(tab):
+    tours = [[], [], [], [], [], []]
+    for n in tab:
+        M = matricePNumpy(n, 1 / n, 1, 2 ** 31)
+        tours[0].append(BellmanFordParcoursLargeur(M, 0))
+        tours[1].append(BellmanFord(M, 0))
+        tours[2].append(BellmanFordParcoursProfondeur(M, 0))
+    return tours
+
+def listeFlechesAleatoires(mat):
+    n = len(mat)
+    fleches = []
+    for i in range(n):
+        for j in range(n):
+            if mat[i][j] == 1:
+                fleches.append((i, j))
+    return fleches
