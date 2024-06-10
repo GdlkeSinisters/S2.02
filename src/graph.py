@@ -157,7 +157,7 @@ def BellmanFord(M, s):
     d = {i: [float('inf'), []] for i in range(n)}
     d[s][0] = 0
     mat = graphPEnNonP(M)
-    fleches = listeFlechesAleatoires(mat)
+    fleches = parcoursAleatoire(mat)
     modif = True
     taille = 0
     while taille < len(M) - 1 and modif:
@@ -166,7 +166,7 @@ def BellmanFord(M, s):
             if M[i][j] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
                 modif = True
                 d[j][0] = d[i][0] + M[i][j]
-                d[j][1] = i
+                d[j][1] = d[i][1] + [i]
         taille += 1
     # detection de cycle negatif
     for i in range(n):
@@ -174,7 +174,7 @@ def BellmanFord(M, s):
             if (M[i][j] != float('inf') and d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]):
                 return "sommet joignable depuis d par un chemin dans le graphe G, mais pas de plus court chemin (presence d’un cycle negatif)"
         # renvoie les chemins
-    return taille
+    return d
 
 
 def pp(mat, s):
@@ -239,7 +239,7 @@ def BellmanFordParcoursLargeur(M, s):
             if d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
                 modif = True
                 d[j][0] = d[i][0] + M[i][j]
-                d[j][1] = i
+                d[j][1] = d[i][1] + [i]
         taille += 1
     # detection de cycle negatif
     for i, j in fleches:
@@ -261,14 +261,14 @@ def BellmanFordParcoursProfondeur(M, s):
     modif = True
     # boucle principale
     taille = 0
-    while modif and taille < len(M) - 1:
+    while modif and taille < len(M):
         modif = False
         # on parcourt chaque flèche dans le parcours en largeur
         for i, j in fleches:
             if d[i][0] != float('inf') and d[j][0] > d[i][0] + M[i][j]:
                 modif = True
                 d[j][0] = d[i][0] + M[i][j]
-                d[j][1] = i
+                d[j][1] = d[i][1] + [i]
         taille += 1
     # detection de cycle negatif
     for i, j in fleches:
@@ -354,7 +354,7 @@ def Tours(tab):
         tours[2].append(BellmanFordParcoursProfondeur(M, 0))
     return tours
 
-def listeFlechesAleatoires(mat):
+def parcoursAleatoire(mat):
     n = len(mat)
     fleches = []
     for i in range(n):
